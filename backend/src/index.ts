@@ -1,16 +1,21 @@
-import 'dotenv/config'
+import 'dotenv/config';
 import express from 'express';
 import morgan from 'morgan';
+import cors from 'cors';
 import prisma from './lib/prisma';
+import userRoutes from './routes/user.routes';
+import transactionRoutes from './routes/transaction.routes';
+import { errorHandler } from './middleware/error.middleware';
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
+app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
 app.get('/', (_req, res) => {
-  res.send('Arcana Backend - Database Integrated');
+  res.send('Arcana Backend - API v1');
 });
 
 app.get('/health', async (_req, res) => {
@@ -22,45 +27,10 @@ app.get('/health', async (_req, res) => {
   }
 });
 
-app.get('/users', async (_req, res) => {
-  try {
-    const users = await prisma.user.findMany({ include: { profile: true } });
-    res.json({ users });
-  } catch (error) {
-    res.status(500).json({ error: String(error) });
-  }
-});
+app.use('/api/users', userRoutes);
+app.use('/api/transactions', transactionRoutes);
 
-app.post('/users', async (req, res) => {
-  try {
-    const { username, email } = req.body;
-    const user = await prisma.user.create({ data: { username, email } });
-    res.json({ user });
-  } catch (error) {
-    res.status(500).json({ error: String(error) });
-  }
-});
-
-app.get('/transactions', async (_req, res) => {
-  try {
-    const transactions = await prisma.transaction.findMany();
-    res.json({ transactions });
-  } catch (error) {
-    res.status(500).json({ error: String(error) });
-  }
-});
-
-app.post('/transactions', async (req, res) => {
-  try {
-    const { userId, type, amount, currency, status } = req.body;
-    const transaction = await prisma.transaction.create({
-      data: { userId, type, amount, currency, status }
-    });
-    res.json({ transaction });
-  } catch (error) {
-    res.status(500).json({ error: String(error) });
-  }
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
