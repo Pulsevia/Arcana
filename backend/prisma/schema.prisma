@@ -8,39 +8,26 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  email     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  profile   Profile?
+  id           String        @id @default(cuid())
+  username     String        @unique
+  email        String        @unique
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  profile      Profile?
+  transactions Transaction[]
 }
 
 model Profile {
-  id            String        @id @default(cuid())
-  userId        String        @unique
-  displayName   String
-  bio           String?
-  avatarUrl     String?
-  tags          String[]
-  model3d       Asset3DMetadata
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-type Asset3DMetadata {
-  assetId       String
-  assetName     String
-  format        String
-  sourceUrl     String
-  thumbnailUrl  String?
-  fileSizeBytes Int
-  polyCount     Int
-  textureCount  Int?
-  rigged        Boolean
-  animations    String[]
-  uploadedAt    DateTime
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  displayName String
+  bio       String?
+  avatarUrl String?
+  tags      String[]
+  model3d   Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Transaction {
