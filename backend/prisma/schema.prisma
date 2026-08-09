@@ -8,12 +8,15 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  email     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  profile   Profile?
+  id           String         @id @default(cuid())
+  username     String         @unique
+  email        String         @unique
+  passwordHash String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  profile      Profile?
+  transactions Transaction[]
+  financialData FinancialData[]
 }
 
 model Profile {
@@ -55,4 +58,25 @@ model Transaction {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FinancialData {
+  id              String   @id @default(cuid())
+  userId          String
+  accountNumber   String?
+  accountType     String
+  institutionName String
+  balance         Decimal  @db.Decimal(20, 4)
+  currency        String   @default("USD")
+  dataSource      String
+  isEncrypted     Boolean  @default(false)
+  encryptionKeyId String?
+  metadata        Json?
+  lastSyncedAt    DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([institutionName])
 }
